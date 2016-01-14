@@ -1,0 +1,4 @@
+services:
+      geonames:
+            class: Timiki\Bundle\GeonamesBundle\Geonames
+            arguments: ['@service_container']

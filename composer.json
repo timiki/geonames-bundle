@@ -1,0 +1,24 @@
+{
+  "name"       : "timiki/geonames-bundle",
+  "type"       : "symfony-bundle",
+  "description": "Timiki Geonames bundle",
+  "branches"   : [
+    "master"
+  ],
+  "tags"       : [],
+  "keywords"   : [],
+  "authors"    : [
+    {
+      "name" : "Netesin N",
+      "email": "nikita@netesin.ru"
+    }
+  ],
+  "require"    : {
+    "symfony/symfony": ">=2.7"
+  },
+  "autoload"   : {
+    "psr-4": {
+      "Timiki\\Bundle\\GeonamesBundle\\": ""
+    }
+  }
+}
