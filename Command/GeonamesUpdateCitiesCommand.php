@@ -5,6 +5,7 @@ namespace Timiki\Bundle\GeonamesBundle\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
+use Symfony\Component\Console\Helper\ProgressBar;
 
 class GeonamesUpdateCitiesCommand extends GeonamesCommand
 {
@@ -25,7 +26,7 @@ class GeonamesUpdateCitiesCommand extends GeonamesCommand
      * execute() method, you set the code to execute by passing
      * a Closure to the setCode() method.
      *
-     * @param InputInterface  $input  An InputInterface instance
+     * @param InputInterface $input An InputInterface instance
      * @param OutputInterface $output An OutputInterface instance
      *
      * @return null|int null or 0 if everything went fine, or an error code
@@ -40,6 +41,9 @@ class GeonamesUpdateCitiesCommand extends GeonamesCommand
         $em         = $this->getContainer()->get('doctrine.orm.'.$this->getContainer()->getParameter('geonames.entity_manager'));
         $connection = $em->getConnection();
         $population = $this->getContainer()->getParameter('geonames.cities_population');
+        $quote      = function ($value) use ($connection) {
+            return $connection->quote($value);
+        };
 
         // Disable SQL logger
         $connection->getConfiguration()->setSQLLogger(null);
@@ -59,46 +63,69 @@ class GeonamesUpdateCitiesCommand extends GeonamesCommand
             $connection->query('SET FOREIGN_KEY_CHECKS=1');
 
             $output->writeln('Load new Geonames list to table...wait');
+            $output->writeln('Processing downloaded data...');
 
+            // Prepare
+            $handler = fopen('zip://'.$file.'#cities'.$population.'.txt', 'r');
+            $count   = 0;
+            while (!feof($handler)) {
+                fgets($handler);
+                $count++;
+            }
+
+            // rewind
+            fclose($handler);
             $handler = fopen('zip://'.$file.'#cities'.$population.'.txt', 'r');
 
-            // Output one line until end-of-file
+            $progress = new ProgressBar($output);
+            $progress->setFormat('normal_nomax');
+            $step = 0;
+            $sql  = '';
+
+            $progress->start($count);
+
+            // Load to db
             while (!feof($handler)) {
+                $step++;
                 $line    = fgets($handler);
                 $explode = explode("\t", $line);
                 if (count($explode) > 1) {
-                    $connection->insert(
-                        'timiki_geonames',
-                        [
-                            'geoname_id'        => array_key_exists(0, $explode) ? $explode[0] : null,
-                            'name'              => array_key_exists(1, $explode) ? $explode[1] : null,
-                            'ascii_name'        => array_key_exists(2, $explode) ? $explode[2] : null,
-                            'alternate_names'   => array_key_exists(3, $explode) ? $explode[3] : null,
-                            'latitude'          => array_key_exists(4, $explode) ? $explode[4] : null,
-                            'longitude'         => array_key_exists(5, $explode) ? $explode[5] : null,
-                            'feature_class'     => array_key_exists(6, $explode) ? $explode[6] : null,
-                            'feature_code'      => array_key_exists(7, $explode) ? $explode[7] : null,
-                            'country_code'      => array_key_exists(8, $explode) ? $explode[8] : null,
-                            'cc2'               => array_key_exists(9, $explode) ? $explode[9] : null,
-                            'admin1_code'       => array_key_exists(10, $explode) ? $explode[10] : null,
-                            'admin2_code'       => array_key_exists(11, $explode) ? $explode[11] : null,
-                            'admin3_code'       => array_key_exists(12, $explode) ? $explode[12] : null,
-                            'admin4_code'       => array_key_exists(13, $explode) ? $explode[13] : null,
-                            'population'        => array_key_exists(14, $explode) ? $explode[14] : 0,
-                            'elevation'         => array_key_exists(15, $explode) ? $explode[15] : 0,
-                            'dem'               => array_key_exists(16, $explode) ? $explode[16] : 0,
-                            'timezone'          => array_key_exists(17, $explode) ? $explode[17] : null,
-                            'modification_date' => array_key_exists(18, $explode) ? $explode[18] : null,
-                        ]
-                    );
+                    $sql .= $connection->createQueryBuilder()->insert('timiki_geonames')->values(
+                            [
+                                'geoname_id'        => $quote(array_key_exists(0, $explode) ? $explode[0] : null),
+                                'name'              => $quote(array_key_exists(1, $explode) ? $explode[1] : null),
+                                'ascii_name'        => $quote(array_key_exists(2, $explode) ? $explode[2] : null),
+                                'alternate_names'   => $quote(array_key_exists(3, $explode) ? $explode[3] : null),
+                                'latitude'          => $quote(array_key_exists(4, $explode) ? $explode[4] : null),
+                                'longitude'         => $quote(array_key_exists(5, $explode) ? $explode[5] : null),
+                                'feature_class'     => $quote(array_key_exists(6, $explode) ? $explode[6] : null),
+                                'feature_code'      => $quote(array_key_exists(7, $explode) ? $explode[7] : null),
+                                'country_code'      => $quote(array_key_exists(8, $explode) ? $explode[8] : null),
+                                'cc2'               => $quote(array_key_exists(9, $explode) ? $explode[9] : null),
+                                'admin1_code'       => $quote(array_key_exists(10, $explode) ? $explode[10] : null),
+                                'admin2_code'       => $quote(array_key_exists(11, $explode) ? $explode[11] : null),
+                                'admin3_code'       => $quote(array_key_exists(12, $explode) ? $explode[12] : null),
+                                'admin4_code'       => $quote(array_key_exists(13, $explode) ? $explode[13] : null),
+                                'population'        => $quote(array_key_exists(14, $explode) ? $explode[14] : 0),
+                                'elevation'         => $quote(array_key_exists(15, $explode) ? $explode[15] : 0),
+                                'dem'               => $quote(array_key_exists(16, $explode) ? $explode[16] : 0),
+                                'timezone'          => $quote(array_key_exists(17, $explode) ? $explode[17] : null),
+                                'modification_date' => $quote(array_key_exists(18, $explode) ? $explode[18] : null),
+                            ]
+                        )->getSQL().';';
+                    if (($step % 1000) === 0) {
+                        $progress->setProgress($step);
+                        $connection->exec($sql);
+                        $sql = '';
+                    }
                 }
-                unset($line);
-                unset($explode);
             }
 
+            $progress->setProgress($step);
+            $connection->exec($sql);
             fclose($handler);
-            $em->flush();
 
+            $output->writeln('');
             $output->writeln('Done!');
 
         }

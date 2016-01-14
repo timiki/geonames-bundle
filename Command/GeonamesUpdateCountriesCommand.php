@@ -5,7 +5,6 @@ namespace Timiki\Bundle\GeonamesBundle\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use Symfony\Component\Filesystem\Filesystem;
 
 class GeonamesUpdateCountriesCommand extends GeonamesCommand
 {
@@ -26,7 +25,7 @@ class GeonamesUpdateCountriesCommand extends GeonamesCommand
      * execute() method, you set the code to execute by passing
      * a Closure to the setCode() method.
      *
-     * @param InputInterface  $input  An InputInterface instance
+     * @param InputInterface $input An InputInterface instance
      * @param OutputInterface $output An OutputInterface instance
      *
      * @return null|int null or 0 if everything went fine, or an error code

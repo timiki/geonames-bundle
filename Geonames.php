@@ -25,8 +25,8 @@ class Geonames
     /**
      * Get country
      *
-     * @param string|integer $name        Country name (geonameId|iso)
-     * @param null|string    $isoLanguage Country name by iso language
+     * @param string|integer $name Country name (geonameId|iso)
+     * @param null|string $isoLanguage Country name by iso language
      * @return array|null
      */
     public function getCountry($name, $isoLanguage = null)
@@ -57,6 +57,7 @@ class Geonames
      */
     public function getCountries($isoLanguage = null)
     {
+        /* @var $em \Doctrine\ORM\EntityManager */
         $em                       = $this->container->get('doctrine.orm.'.$this->container->getParameter('geonames.entity_manager'));
         $repositoryCountries      = $em->getRepository('GeonamesBundle:Countries');
         $repositoryAlternateNames = $em->getRepository('GeonamesBundle:AlternateNames');
@@ -84,6 +85,7 @@ class Geonames
      */
     public function getCityLink($geonameId)
     {
+        /* @var $em \Doctrine\ORM\EntityManager */
         $em                       = $this->container->get('doctrine.orm.'.$this->container->getParameter('geonames.entity_manager'));
         $repositoryGeonames       = $em->getRepository('GeonamesBundle:Geonames');
         $repositoryAlternateNames = $em->getRepository('GeonamesBundle:AlternateNames');
@@ -100,12 +102,13 @@ class Geonames
     /**
      * Get city by geoname id
      *
-     * @param integer     $geonameId   City geoname id
+     * @param integer $geonameId City geoname id
      * @param null|string $isoLanguage City name by iso language
      * @return array|null
      */
     public function getCityByGeonameId($geonameId, $isoLanguage = null)
     {
+        /* @var $em \Doctrine\ORM\EntityManager */
         $em                       = $this->container->get('doctrine.orm.'.$this->container->getParameter('geonames.entity_manager'));
         $repositoryGeonames       = $em->getRepository('GeonamesBundle:Geonames');
         $repositoryAlternateNames = $em->getRepository('GeonamesBundle:AlternateNames');
@@ -128,12 +131,13 @@ class Geonames
     /**
      * Get cities list by time zone
      *
-     * @param string      $timeZone    Cities time zone
+     * @param string $timeZone Cities time zone
      * @param null|string $isoLanguage Cities names by iso language
      * @return array
      */
     public function getCitiesByTimeZone($timeZone, $isoLanguage = null)
     {
+        /* @var $em \Doctrine\ORM\EntityManager */
         $em                 = $this->container->get('doctrine.orm.'.$this->container->getParameter('geonames.entity_manager'));
         $repositoryGeonames = $em->getRepository('GeonamesBundle:Geonames');
         $qbGeonames         = $repositoryGeonames->createQueryBuilder('geonames');
@@ -161,8 +165,8 @@ class Geonames
     /**
      * Get cities list by population
      *
-     * @param null|integer $population  Min cities population
-     * @param null|string  $isoLanguage Cities names by iso language
+     * @param null|integer $population Min cities population
+     * @param null|string $isoLanguage Cities names by iso language
      * @return array
      */
     public function getCitiesByPopulation($population = 5000, $isoLanguage = null)
@@ -171,6 +175,7 @@ class Geonames
             $population = 5000;
         }
 
+        /* @var $em \Doctrine\ORM\EntityManager */
         $em                 = $this->container->get('doctrine.orm.'.$this->container->getParameter('geonames.entity_manager'));
         $repositoryGeonames = $em->getRepository('GeonamesBundle:Geonames');
         $qbGeonames         = $repositoryGeonames->createQueryBuilder('geonames');
@@ -198,9 +203,9 @@ class Geonames
     /**
      * Get cities list by country
      *
-     * @param string|integer $country     Cities country
-     * @param null|integer   $population  Min cities population
-     * @param null|string    $isoLanguage Cities names by iso language
+     * @param string|integer $country Cities country
+     * @param null|integer $population Min cities population
+     * @param null|string $isoLanguage Cities names by iso language
      * @return array
      */
     public function getCitiesByCountry($country, $population = 5000, $isoLanguage = null)
@@ -212,6 +217,7 @@ class Geonames
             $population = 5000;
         }
 
+        /* @var $em \Doctrine\ORM\EntityManager */
         $em                 = $this->container->get('doctrine.orm.'.$this->container->getParameter('geonames.entity_manager'));
         $repositoryGeonames = $em->getRepository('GeonamesBundle:Geonames');
         $qbGeonames         = $repositoryGeonames->createQueryBuilder('geonames');
