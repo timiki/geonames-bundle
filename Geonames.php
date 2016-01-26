@@ -69,7 +69,7 @@ class Geonames
         }
 
         foreach ($countries as $key => $country) {
-            if ($altName = $repositoryAlternateNames->findOneBy(['geonameId' => $country['geoname_id'], 'isoLanguage' => $isoLanguage])) {
+            if ($altName = $repositoryAlternateNames->findOneBy(['geonameId' => $country['geoname_id'], 'isoLanguage' => strtoupper($isoLanguage)])) {
                 $countries[$key]['country'] = $altName->getAlternateName();
             }
         }
