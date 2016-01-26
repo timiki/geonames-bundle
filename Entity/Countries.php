@@ -644,7 +644,7 @@ class Countries
             'postal_code_format'   => $this->getPostalCodeFormat(),
             'postal_code_regex'    => $this->getPostalCodeRegex(),
             'languages'            => $this->getLanguages(),
-            'geonameid'            => $this->getGeonameid(),
+            'geoname_id'           => $this->getGeonameid(),
             'neighbours'           => $this->getNeighbours(),
             'equivalent_fips_code' => $this->getEquivalentFipsCode(),
         ];
